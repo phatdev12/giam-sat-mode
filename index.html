@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="text/javascript"  src="./browserfs.min.js"></script>
+</head>
+<body>
+    <button onclick="clickFunc()" id="lam-bai-thi-btn">Làm bài thi</button>
+    <script src="./require.js"></script>
+    
+    <script>
+        BrowserFS.install(window);
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const giam_sat = urlParams.get('giam_sat');
+        
+        let check = {
+            checked: false,
+            screen: false,
+        }
+        
+        var elem = document.documentElement;
+        
+        let i = 0;
+        let so_lan_thoat = 0;
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        function giamSatElement(){
+            var warning = document.createElement('div');
+
+            warning.innerHTML = '<h1>Warning</h1><h3>Bạn đang bị giam sát!</h3>';
+            warning.style.color = 'red';
+
+            const id = `warning_${i++}`
+            // create cookie value
+            check.checked = true;
+            
+            new Promise(function(resolve, reject) {
+                warning.id = id;
+                document.body.appendChild(warning);
+                
+                resolve(id);
+                
+            }).then(function(id) {
+                setTimeout(function() {
+                    document.getElementById(id).remove();
+                }, 2000);
+                setTimeout(function() {
+                    check.checked = false;
+                }, 3000);
+            });
+        }
+        function clickFunc(){          
+            window.location.href = '/?giam_sat=true';
+            
+        }
+        if(giam_sat == 'true'){
+            const btn = document.getElementById("lam-bai-thi-btn");
+            var text = document.createElement('h1');
+            btn.remove();
+            text.innerText = 'Đây là bài thi thử nghiệm được bật chế độ giám sát';
+
+            document.body.appendChild(text);
+            // if screen has been minimized
+            window.addEventListener('blur', function() {
+                if(check.checked == false){
+                    giamSatElement()
+                    so_lan_thoat+=1
+                    // write to file
+                    
+                    // Configures BrowserFS to use the LocalStorage file system.
+                    BrowserFS.configure({
+                        fs: "LocalStorage"
+                    }, function(e) {
+                        if (e) {
+                        // An error happened!
+                            throw e;
+                        }
+                        var fs = BrowserFS.BFSRequire('fs');
+                        fs.writeFile('log.txt', `${so_lan_thoat}`, function(err) {
+                            fs.readFile('log.txt', function(err, contents) {
+                                console.clear();
+                                console.log("Số lần khả nghi : " + contents.toString());
+                            });
+                        });
+                    });
+                }
+            });
+            window.onresize =  function() {
+                if(check.checked == false){
+                    giamSatElement()
+                    so_lan_thoat+=1
+                    // write to file
+                    
+                    // Configures BrowserFS to use the LocalStorage file system.
+                    BrowserFS.configure({
+                        fs: "LocalStorage"
+                    }, function(e) {
+                        if (e) {
+                        // An error happened!
+                        throw e;
+                        }
+                        var fs = BrowserFS.BFSRequire('fs');
+                        fs.writeFile('log.txt', `${so_lan_thoat}`, function(err) {
+                            fs.readFile('log.txt', function(err, contents) {
+                                console.clear();
+                                console.log("Số lần khả nghi : " + contents.toString());
+                            });
+                        });
+                    });
+                } else {
+                    return
+                }
+                
+            }
+            
+        }
+    </script>
+</body>
+</html>
